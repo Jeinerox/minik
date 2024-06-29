@@ -1,0 +1,12 @@
+[Unit]
+Description=Minecraft launcher daemon
+PartOf=tmux-dummy.service
+After=tmux-dummy.service
+
+[Service]
+User=@name@
+RemainAfterExit=yes
+ExecStart=/usr/bin/python3 @repo_path@/src/minikd.py
+
+[Install]
+WantedBy=multi-user.target

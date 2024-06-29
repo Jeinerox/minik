@@ -1,0 +1,13 @@
+[Unit]
+Description=tmux master service
+Wants=network.target
+After=network.target
+
+[Service]
+User=@name@
+Type=forking
+ExecStart=/usr/bin/tmux new-session -s dummy -d
+ExecStop=/usr/bin/tmux kill-session -t dummy
+
+[Install]
+WantedBy=multi-user.target

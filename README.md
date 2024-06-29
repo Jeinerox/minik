@@ -1,1 +1,1 @@
-# minecraft_manager
+# minecraft manager

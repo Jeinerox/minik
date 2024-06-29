@@ -1,0 +1,12 @@
+servers:
+  - name: red
+    path: /home/jeinerox/minecraft/server
+    memory: -Xmx3G
+    autorestart: False
+    start_on_launch: False
+
+  - name: flat
+    path: /home/jeinerox/minecraft/server_superflat
+    memory: -Xmx3G
+    autorestart: False
+    start_on_launch: False
