@@ -1,6 +1,5 @@
 #!/bin/bash
 
-sudo ./uninstall_service.sh
 
 TEMPLATES_DIR="$(dirname "$0")/templates"
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"

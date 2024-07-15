@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="minecraft_manager",
+    name="minik",
     version="0.1",
     author="jeinerox",
     description="A command-line tool to manage Minecraft servers using tmux",

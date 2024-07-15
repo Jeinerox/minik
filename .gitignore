@@ -1,3 +1,6 @@
 /services
 /build
 /src/__pycache__
+/pipes
+/logs
+.vscode
