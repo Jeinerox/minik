@@ -6,5 +6,6 @@
 .venv
 /venv
 /dist
+/config
 *.egg-info
 __pycache__

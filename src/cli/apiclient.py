@@ -14,6 +14,8 @@ status_messages = {
     201: "The server has started",
     202: "The server has been stopped",
     203: "Backup done",
+    204: "Start on lauch turned on",
+    205: "Start on lauch turned off",
 
     301: "The server name was not found",
     302: "There are no servers with backup enabled",
@@ -61,7 +63,7 @@ class ApiClient:
                 pipe = os.fdopen(fd, 'r')
                 
                 while not self.stop_event.is_set():
-                    line = pipe.readline()
+                    line = pipe.readline() #blocking so we can't close the pipe
                     if not line:
                         raise OSError("TMUX PIPE DED :(")
                     print(line, end='')

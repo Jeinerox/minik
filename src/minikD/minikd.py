@@ -16,7 +16,7 @@ LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../logs/
 PIPES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pipes/')
 
 config = None
-minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.DEBUG)
+minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.INFO)
 backup = Backup(minikd_logger, BACKUP_TIME)
 stop_event = threading.Event()
 
@@ -37,6 +37,7 @@ def is_server_running(server):
     return bool(result.stdout.strip())
 
 def start_server(server):
+    minikd_logger.info(f"[{server['name']}] Trying to start the server")
     server['auto_restart'] = True
     save_yaml()
     result = subprocess.run(['tmux', 'list-sessions'], stdout=subprocess.PIPE, text=True)
@@ -66,10 +67,11 @@ def start_server(server):
     return 501
 
 def stop_server(server, wait=False):
+    minikd_logger.info(f"[{server['name']}] Trying to stop the server")
     server['auto_restart'] = False
     save_yaml()
     if (is_server_running(server)):
-        send_text(server, 'stop')
+        send_text(server, 'stop', reliable=True)
     else:
         minikd_logger.debug(f"[{server['name']}] There was an attempt to stop the server, but it is already stopped")
         return 102
@@ -125,12 +127,23 @@ def backup_servers(manual = False):
         return 203
     return 302
 
-def send_text(server, message):
+def change_start_on_lauch(server, state):
+    server['start_on_launch'] = state
+    save_yaml()
+    if state:
+        minikd_logger.info(f"[{server['name']}] Start on lauch turned on")
+        return 204
+    minikd_logger.info(f"[{server['name']}] Start on lauch turned off")
+    return 205
+
+def send_text(server, message, reliable=False):
+    if reliable:
+        subprocess.run(['tmux', 'send-keys', '-t', server['name'], 'Enter'])
     subprocess.run(['tmux', 'send-keys', '-t', server['name'], message, 'Enter'])
     minikd_logger.debug(f"[{server['name']}] The message has been sent: {message}")
 
 def watchdog():
-    while True:
+    while not stop_event.is_set():
         for server in config['servers']:
             if server['auto_restart'] == True and not is_server_running(server):
                 minikd_logger.warn(f"[{server['name']}] Restarting the server after a probable crash")
@@ -153,7 +166,7 @@ def command_handler(command, client_socket):
             elif command == 'stop':
                 answer = str(stop_server(server)).encode('utf-8')    
             elif command == 'backup':
-                answer = '100'.encode('utf-8') 
+                answer = b'100' 
                 threading.Thread(target=backup_servers, args=(True,)).start()
             elif command == 'backup-w':
                 answer = str(backup_servers(True)).encode('utf-8')
@@ -171,8 +184,12 @@ def command_handler(command, client_socket):
                 answer = str(restart_server(server, force=True)).encode('utf-8')
             elif command == 'restart-f-w':
                 answer = str(restart_server(server, wait=True, force=True)).encode('utf-8')
+            elif command == 'enable':
+                answer = str(change_start_on_lauch(server, True)).encode('utf-8')
+            elif command == 'disable':
+                answer = str(change_start_on_lauch(server, False)).encode('utf-8')
             elif command == 'status':
-                answer =  [b'102', b'101' ][int(is_server_running(server))]
+                answer =  [b'102', b'101'][int(is_server_running(server))]
             else:
                 answer = b'401'
         else:
@@ -188,7 +205,7 @@ def api():
     server_socket.bind(('localhost', PORT))
     server_socket.listen(1)
     minikd_logger.debug(f"[API] Server listening on port: {PORT}")
-    while stop_event.is_set():
+    while not stop_event.is_set():
         client_socket, addr = server_socket.accept()
         minikd_logger.debug(f"[API] Connected by: {addr}")
         with client_socket:
@@ -203,11 +220,17 @@ def signal_handler(sig, frame):
     minikd_logger.info(f"[SIG] Received CTRL+C, stopping...")
 
     stop_event.set()
+    server_threads = []
     for server in config['servers']:
         if is_server_running(server):
-            stop_server(server, wait=True)
+            server_threads.append(threading.Thread(target=stop_server, args=(server, True,))) #simultaneous stop
+            server_threads[-1].start()
+
+    for server in server_threads:
+        server.join()
+    
     minikd_logger.info(f"Daemon stopped") 
-    exit()
+    os._exit(0) # kills blocking .accept() from api()
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)

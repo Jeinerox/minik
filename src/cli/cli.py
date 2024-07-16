@@ -1,7 +1,6 @@
 import signal
 import click
 import threading
-import importlib.resources as pkg_resources
 from apiclient import ApiClient
 import yaml
 import os
@@ -78,6 +77,22 @@ def restart(server_name, wait, force):
 
 @cli.command()
 @click.argument('server_name', type=click.Choice(get_servers() + ['all'], case_sensitive=False))
+def enable(server_name):
+	'''Enables start on launch'''
+	for server_name in is_all(server_name):
+		print(server_name, end=': ')
+		client.send_command('enable', server_name)
+
+@cli.command()
+@click.argument('server_name', type=click.Choice(get_servers() + ['all'], case_sensitive=False))
+def disable(server_name):
+	'''Disables start on launch'''
+	for server_name in is_all(server_name):
+		print(server_name, end=': ')
+		client.send_command('disable', server_name)
+
+@cli.command()
+@click.argument('server_name', type=click.Choice(get_servers() + ['all'], case_sensitive=False))
 def status(server_name):
 	'''Returns the server(s) status'''
 	for server_name in is_all(server_name):
@@ -92,12 +107,12 @@ def attach(server_name):
 		client.attach(server_name)
 	else:
 		print('The server is stoppped')
-
+'''                                ====== BROKEN ======
 @cli.command()
 @click.argument('server_name', type=click.Choice(get_servers(), case_sensitive=False))
 def talk(server_name):
-	'''An analogue of the attach command. The difference is that talk allows you to read and print 
-	to the tmux console without directly connecting to it. It may work unstable, so attach is preferable.'''
+	,,,An analogue of the attach command. The difference is that talk allows you to read and print 
+	to the tmux console without directly connecting to it. It may work unstable, so attach is preferable.,,,
 	if client.send_command('status', server_name, mute=True) == 101:
 		signal.signal(signal.SIGINT, client.signal_handler)
 		talkThread = threading.Thread(target=client.talk, args=(server_name,))
@@ -107,7 +122,7 @@ def talk(server_name):
 			client.send_message(server_name, message) 
 	else:
 		print('The server is stoppped')
-
+'''
 @cli.command()
 @click.argument('server_name', type=click.Choice(get_servers() + ['all'], case_sensitive=False))
 @click.argument('text', type=click.STRING)
