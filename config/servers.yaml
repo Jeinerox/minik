@@ -5,7 +5,7 @@ servers:
   backup_path: /home/jeinerox/minecraft/backups
   world_name: PUZZLEFUCKERS
   memory: -Xmx3G
-  auto_restart: true
+  auto_restart: false
   start_on_launch: true
 - name: flat
   path: /home/jeinerox/minecraft/server_superflat

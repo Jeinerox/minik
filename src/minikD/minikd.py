@@ -4,6 +4,7 @@ import os
 import subprocess
 import threading
 import logging
+import signal
 from logger import my_logger
 from backup import Backup
 from time import sleep
@@ -17,6 +18,7 @@ PIPES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pip
 config = None
 minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.DEBUG)
 backup = Backup(minikd_logger, BACKUP_TIME)
+stop_event = threading.Event()
 
 def read_yaml():
     global config
@@ -186,7 +188,7 @@ def api():
     server_socket.bind(('localhost', PORT))
     server_socket.listen(1)
     minikd_logger.debug(f"[API] Server listening on port: {PORT}")
-    while True:
+    while stop_event.is_set():
         client_socket, addr = server_socket.accept()
         minikd_logger.debug(f"[API] Connected by: {addr}")
         with client_socket:
@@ -197,7 +199,18 @@ def api():
             minikd_logger.debug(f"[API] Received command: {command}")
             command_handler(command, client_socket)
 
+def signal_handler(sig, frame):
+    minikd_logger.info(f"[SIG] Received CTRL+C, stopping...")
+
+    stop_event.set()
+    for server in config['servers']:
+        if is_server_running(server):
+            stop_server(server, wait=True)
+    minikd_logger.info(f"Daemon stopped") 
+    exit()
+
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
     minikd_logger.info('Daemon started')
     read_yaml()
     for server in config['servers']:
