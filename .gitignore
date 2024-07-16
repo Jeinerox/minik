@@ -1,6 +1,10 @@
 /services
 /build
-/src/__pycache__
 /pipes
 /logs
 .vscode
+.venv
+/venv
+/dist
+*.egg-info
+__pycache__

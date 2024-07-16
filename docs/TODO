@@ -1,0 +1,2 @@
+use libtmux library for control tmux sessions
+fix talk func in aliclient.py

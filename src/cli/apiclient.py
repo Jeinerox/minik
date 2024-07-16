@@ -25,7 +25,7 @@ status_messages = {
     
 }
 
-class ServerManager:
+class ApiClient:
     def __init__(self):
         self.stop_event = threading.Event()
 
@@ -51,9 +51,10 @@ class ServerManager:
         subprocess.run(["tmux", "attach-session", "-t", server_name])
 
     def talk(self, session_name):
-        pipe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../pipes/' + session_name)
+        pipe_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pipes/' + session_name)
 
-        #TODO  needed to copy current user input then print server message and after that paste user input
+        #TODO needed to copy current user input then print server message and after that paste user input
+        # and fix a bug when pipe brokes
         while True:
             try:
                 fd = os.open(pipe_path, os.O_RDWR)

@@ -5,7 +5,7 @@ import subprocess
 from logger import my_logger
 
 
-LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../logs/minik.log')
+LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../logs/minik.log')
 
 class Backup:
     def __init__(self, logger, backup_time = 5):

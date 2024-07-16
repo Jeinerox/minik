@@ -6,7 +6,7 @@ After=tmux-dummy.service
 [Service]
 User=@name@
 RemainAfterExit=yes
-ExecStart=/usr/bin/python3 @repo_path@/src/minikd.py
+ExecStart=@repo_path@/venv/bin/python3 @repo_path@/src/minikD/minikd.py
 
 [Install]
 WantedBy=multi-user.target

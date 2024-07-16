@@ -4,7 +4,14 @@ REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
 SYSTEMD_DIR="/etc/systemd/system"
 TEMPLATES_DIR="$(dirname "$0")/templates"
 SERVICE_FILES_DIR="$REPO_PATH/services"
+MINIK_PATH="/usr/local/bin/minik"
 
+# UNINSTALLING VENV & CLI
+
+sudo rm -R venv
+sudo rm $MINIK_PATH
+
+# UNINSTALLING SERVICES
 sudo systemctl stop tmux-dummy.service 
 sudo systemctl stop minikd.service
 

@@ -4,16 +4,15 @@ import os
 import subprocess
 import threading
 import logging
-import time
 from logger import my_logger
 from backup import Backup
 from time import sleep
 
 PORT = 9198
 BACKUP_TIME = 5 # hours
-CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../config/servers.yaml')
-LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../logs/minik.log')
-PIPES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../pipes/')
+CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../config/servers.yaml')
+LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../logs/minik.log')
+PIPES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pipes/')
 
 config = None
 minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.DEBUG)
