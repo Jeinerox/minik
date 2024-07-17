@@ -42,6 +42,7 @@ class Backup:
         subprocess.run(['mv', os.path.join(backup_path, world_name),  os.path.join(backup_path, datetime.now().strftime(f"{world_name}_%d.%m.%Y-%H_%M_%S"))])
 
     def backup(self, server_path, backup_path, world_name, backups_count):
+        os.makedirs(os.path.dirname(backup_path), exist_ok=True)
         world_path = os.path.join(server_path, world_name)
         backups = self.__get_all_directories_sorted(backup_path, world_name)
         

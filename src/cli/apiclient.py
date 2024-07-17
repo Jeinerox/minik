@@ -17,6 +17,7 @@ status_messages = {
     204: "Start on lauch turned on",
     205: "Start on lauch turned off",
 
+    300: "Bad config",
     301: "The server name was not found",
     302: "There are no servers with backup enabled",
     
@@ -45,7 +46,7 @@ class ApiClient:
             print('The daemon sent an invalid code')
             return 
         if not mute:
-            print(status_messages.get(response, "The daemon sent an unknown code"))
+            print(status_messages.get(response, f"The daemon sent an unknown code: {response}"))
         client_socket.close()
         return response
 

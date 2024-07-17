@@ -1,10 +1,9 @@
-import signal
 import click
-import threading
 from apiclient import ApiClient
 import yaml
 import os
-
+# import threading
+# import signal
 
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../config/servers.yaml')
 client = ApiClient()

@@ -1,6 +1,8 @@
 import logging
+import os
 
 def my_logger(file, name, level):
+	os.makedirs(os.path.dirname(file), exist_ok=True)
 
 	logger = logging.getLogger(name)
 	logger.setLevel(level)
