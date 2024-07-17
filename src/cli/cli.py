@@ -8,10 +8,19 @@ import os
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../config/servers.yaml')
 client = ApiClient()
 
+def check():
+	answer = client.send_command('test', '-', mute=True)
+	if answer == 200:
+		return
+	elif answer == 300:
+		print('YAML error. Please, check daemon logs by running: systemctl status minikd.service')
+	exit(answer)
+
 def get_servers():
 	with open(CONFIG_PATH, 'r') as file:
 		config = yaml.safe_load(file)
 	return [server['name'] for server in config['servers']]
+
 
 def is_all(server):
 	if server == 'all':
@@ -146,4 +155,5 @@ def command(server_name, text):
 		print('The server is stoppped')
 	
 if __name__ == "__main__":
+	check()
 	cli()

@@ -36,10 +36,11 @@ class ApiClient:
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             client_socket.connect(('127.0.0.1', 9198))
+            client_socket.sendall(f"{command} {server_name}".encode('utf-8'))
+            response = client_socket.recv(1024).decode('utf-8')
         except BaseException:
             print('Unable to connect to the daemon. The service may not be running.')
-        client_socket.sendall(f"{command} {server_name}".encode('utf-8'))
-        response = client_socket.recv(1024).decode('utf-8')
+            return
         try:
             response = int(response)
         except BaseException:

@@ -17,7 +17,7 @@ LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../logs/
 PIPES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pipes/')
 
 config = None
-minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.INFO)
+minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.DEBUG)
 backup = Backup(minikd_logger, BACKUP_TIME)
 yaml_tester = YamlTester(CONFIG_PATH, minikd_logger)
 
@@ -144,6 +144,7 @@ def send_text(server, message, reliable=False):
 
 def watchdog():
     while True:
+        read_yaml()
         if not config:
             minikd_logger.error(f"Daemon is suspended due to invalid config, waiting...")
             while not config:
@@ -162,16 +163,19 @@ def watchdog():
         sleep(5)
   
 def command_handler(command, client_socket):
-    answer = 401
+    answer = b'401'
     try:
-        command, server_name = command.split()
         read_yaml()
         if not config:
             answer = b'300'
             raise RuntimeError('Bad config')
+        
+        command, server_name = command.split()
         server = next((s for s in config['servers'] if s['name'] == server_name or '-' == server_name ), None)
         if server:
-            if command == 'start':
+            if command == 'test':
+                answer = b'200'
+            elif command == 'start':
                 answer = str(start_server(server)).encode('utf-8')
             elif command == 'stop':
                 answer = str(stop_server(server)).encode('utf-8')    
