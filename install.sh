@@ -8,6 +8,7 @@ USERNAME=${SUDO_USER:-$(whoami)}
 MINIK_PATH="/usr/local/bin/minik"
 
 # INSTALLING VENV & CLI
+sudo apt install python-setuptools -y 1> /dev/null 2> /dev/null
 if [ ! -f "venv" ]; then
     python3 -m venv venv
 fi

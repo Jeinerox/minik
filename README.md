@@ -61,6 +61,12 @@ To install Minik, follow these steps:
     sudo ./install.sh
     ```
 
+5. Check if the daemon is working:
+
+    ```
+    systemctl status minikd.service
+    ```
+
 The installation script will:
 
 - Create a virtual environment.

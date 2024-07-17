@@ -17,7 +17,7 @@ LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../logs/
 PIPES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../pipes/')
 
 config = None
-minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.DEBUG)
+minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.INFO)
 backup = Backup(minikd_logger, BACKUP_TIME)
 yaml_tester = YamlTester(CONFIG_PATH, minikd_logger)
 
@@ -216,10 +216,14 @@ def command_handler(command, client_socket):
         client_socket.close()
     
 def api():
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('localhost', PORT))
-    server_socket.listen(1)
+    try:
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_socket.bind(('localhost', PORT))
+        server_socket.listen(1)
+    except OSError:
+        minikd_logger.error(f"[API] Port {PORT} is already in use. Another copy of the program may be running. Exiting...")
+        os._exit(0)
     minikd_logger.debug(f"[API] Server listening on port: {PORT}.")
     while True:
         client_socket, addr = server_socket.accept()
@@ -253,6 +257,7 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     apiThread = threading.Thread(target=api)
     apiThread.start()
+    sleep(1)
     read_yaml()
     while not config:
         read_yaml()
