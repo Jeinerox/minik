@@ -19,7 +19,7 @@ def check():
 def get_servers():
 	with open(CONFIG_PATH, 'r') as file:
 		config = yaml.safe_load(file)
-	return [server['name'] for server in config['servers']]
+	return [server['name'] for server in config['servers'] if server['name'] is not None]
 
 
 def is_all(server):
@@ -111,10 +111,8 @@ def status(server_name):
 @click.argument('server_name', type=click.Choice(get_servers(), case_sensitive=False))
 def attach(server_name):
 	'''Attach to the tmux console of the selected server. To exit the console, press CTRL+B and then D.'''
-	if client.send_command('status', server_name, mute=True) == 101:
-		client.attach(server_name)
-	else:
-		print('The server is stoppped')
+	client.attach(server_name)
+
 '''                                ====== BROKEN ======
 @cli.command()
 @click.argument('server_name', type=click.Choice(get_servers(), case_sensitive=False))

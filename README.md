@@ -8,6 +8,7 @@ Minik is a CLI tool designed for managing Minecraft servers. Developed and teste
 - **Automatic server restart:** Restarts the Minecraft server if it crashes.
 - **Safe server shutdown:** Ensures proper server shutdown when the computer is turned off.
 - **Basic commands:** Start, stop, restart servers, and send messages.
+- **Autocompletion:** Supports command autocompletion.
 
 ## Requirements
 
@@ -67,11 +68,14 @@ To install Minik, follow these steps:
     systemctl status minikd.service
     ```
 
+6. **Note:** After installation, you may need to open a new terminal in order for the autocomplete to work properly.
+
 The installation script will:
 
 - Create a virtual environment.
 - Set up the systemd service for automatic startup.
 - Create the executable file `minik` in `/usr/local/bin/`.
+- Add eval command in .bashrc
 
 ## Configuration
 
