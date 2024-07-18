@@ -8,7 +8,6 @@ fi
 TEMPLATES_DIR="$(dirname "$0")/templates"
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
 SYSTEMD_DIR="/usr/lib/systemd/system"
-SERVICE_FILES_DIR="$REPO_PATH/services"
 USERNAME=${SUDO_USER:-$(whoami)}
 USER_HOME=$(eval echo ~"$SUDO_USER")
 MINIK_PATH="/usr/local/bin/minik"
@@ -48,12 +47,9 @@ generate_service_file() {
 }
 
 
-mkdir -p "$SERVICE_FILES_DIR"
-generate_service_file "$TEMPLATES_DIR/tmux-dummy.service.template" "$REPO_PATH" "$USERNAME" "$SERVICE_FILES_DIR/tmux-dummy.service"
-generate_service_file "$TEMPLATES_DIR/minikd.service.template" "$REPO_PATH" "$USERNAME" "$SERVICE_FILES_DIR/minikd.service"
 
-ln -sf "$SERVICE_FILES_DIR/tmux-dummy.service" "$SYSTEMD_DIR/tmux-dummy.service"
-ln -sf "$SERVICE_FILES_DIR/minikd.service" "$SYSTEMD_DIR/minikd.service"
+generate_service_file "$TEMPLATES_DIR/tmux-dummy.service.template" "$REPO_PATH" "$USERNAME" "$SYSTEMD_DIR/tmux-dummy.service"
+generate_service_file "$TEMPLATES_DIR/minikd.service.template" "$REPO_PATH" "$USERNAME" "$SYSTEMD_DIR/minikd.service"
 
 systemctl daemon-reload
 systemctl enable tmux-dummy.service
