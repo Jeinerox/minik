@@ -7,7 +7,7 @@ fi
 
 TEMPLATES_DIR="$(dirname "$0")/templates"
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
-SYSTEMD_DIR="/etc/systemd/system"
+SYSTEMD_DIR="/usr/lib/systemd/system"
 SERVICE_FILES_DIR="$REPO_PATH/services"
 USERNAME=${SUDO_USER:-$(whoami)}
 USER_HOME=$(eval echo ~"$SUDO_USER")
@@ -15,7 +15,10 @@ MINIK_PATH="/usr/local/bin/minik"
 
 
 # INSTALLING VENV & CLI
-sudo apt install python-setuptools -y 1> /dev/null 2> /dev/null
+apt install python-setuptools -y 1> /dev/null 2> /dev/null
+apt install python3-pip -y 1> /dev/null 2> /dev/null
+apt install python3-venv -y 1> /dev/null 2> /dev/null
+
 if [ ! -f "venv" ]; then
     python3 -m venv venv
 fi

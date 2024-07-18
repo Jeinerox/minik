@@ -20,11 +20,6 @@ Minik is a CLI tool designed for managing Minecraft servers. Developed and teste
 
    If needed, install Python 3.6+ using your package manager or from [Python's official website](https://www.python.org/downloads/).
 
-    If `pip` is not installed, you can install it using:
-
-    ```
-    sudo apt -y install python3-pip
-    ```
 
 2. **tmux:** Ensure `tmux` is installed. This guide assumes you are using a Debian-based system (such as Debian or Ubuntu). If `tmux` is not already installed, you can install it using:
 
