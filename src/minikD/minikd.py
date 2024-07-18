@@ -45,8 +45,9 @@ def start_server(server):
     if server['name'] not in result.stdout:
         minikd_logger.debug(f"[{server['name']}] Starting new tmux session.")
         subprocess.run(['tmux', 'new-session', '-d', '-s', server['name']])
-        pipe_path = f"{PIPES_PATH}/{server['name']}"
+        pipe_path = os.path.join(PIPES_PATH, server['name'])
         if not os.path.exists(pipe_path):
+            os.makedirs(os.path.dirname(PIPES_PATH), exist_ok=True)
             os.mkfifo(pipe_path)
         subprocess.run(['tmux', 'pipe-pane', '-o', '-t', server['name'], f'cat >> {pipe_path}'])
         sleep(0.5)

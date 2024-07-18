@@ -38,9 +38,12 @@ class ApiClient:
             client_socket.connect(('127.0.0.1', 9198))
             client_socket.sendall(f"{command} {server_name}".encode('utf-8'))
             response = client_socket.recv(1024).decode('utf-8')
+        except KeyboardInterrupt:
+            return
         except BaseException:
             print('Unable to connect to the daemon. The service may not be running.')
             return
+
         try:
             response = int(response)
         except BaseException:
