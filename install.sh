@@ -15,9 +15,6 @@ MINIK_PATH="/usr/local/bin/minik"
 
 
 # INSTALLING VENV & CLI
-apt install python-setuptools -y 1> /dev/null 2> /dev/null
-apt install python3-pip -y 1> /dev/null 2> /dev/null
-apt install python3-venv -y 1> /dev/null 2> /dev/null
 
 if [ ! -f "venv" ]; then
     python3 -m venv venv

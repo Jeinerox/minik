@@ -18,13 +18,20 @@ Minik is a CLI tool designed for managing Minecraft servers. Developed and teste
     python3 --version
     ```
 
-   If needed, install Python 3.6+ using your package manager or from [Python's official website](https://www.python.org/downloads/).
+    If needed, install Python 3.6+ using your package manager or from [Python's official website](https://www.python.org/downloads/).
 
+    Venv and pip are also required.
+    ```
+    sudo apt install python3-pip -y 
+    ```
+    ```
+    sudo apt install python3-venv -y 
+    ```
 
 2. **tmux:** Ensure `tmux` is installed. This guide assumes you are using a Debian-based system (such as Debian or Ubuntu). If `tmux` is not already installed, you can install it using:
 
     ```
-    sudo apt install tmux
+    sudo apt install tmux -y 
     ```
 
    For other distributions or operating systems, please refer to your package manager's documentation for installing `tmux`.
@@ -36,13 +43,13 @@ To install Minik, follow these steps:
 1. Clone the repository:
 
     ```
-    git clone https://github.com/Jeinerox/Minik.git
+    git clone https://github.com/Jeinerox/minik.git
     ```
 
 2. Navigate into the cloned directory:
 
     ```
-    cd Minik
+    cd minik
     ```
 
 3. Make the installation scripts executable:
