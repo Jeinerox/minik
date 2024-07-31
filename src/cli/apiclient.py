@@ -20,6 +20,7 @@ status_messages = {
     300: "Bad config",
     301: "The server name was not found",
     302: "There are no servers with backup enabled",
+    303: "The backup is already in progress",
     
     401: "Unknown command",
 

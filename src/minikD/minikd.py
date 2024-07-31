@@ -20,7 +20,7 @@ config = None
 minikd_logger = my_logger(LOG_PATH, 'MinikD', logging.INFO)
 backup = Backup(minikd_logger, BACKUP_TIME)
 yaml_tester = YamlTester(CONFIG_PATH, minikd_logger)
-
+backup_in_progress = False
 
 def read_yaml():
     global config
@@ -108,22 +108,30 @@ def restart_server(server, wait=False, force=False):
     return 201
 
 def backup_servers(manual = False):
+    global backup_in_progress
+    if backup_in_progress:
+        return 303
+    backup_in_progress = True
+
     backedUp = False
     for server in config['servers']:
         if 'backup_path' not in server or 'world_name' not in server:
             continue
         minikd_logger.info(f"[{server['name']}] The backup begins.")
-        if is_server_running(server) and not manual:
+        runState = is_server_running(server)
+        if runState and not manual:
             send_text(server, 'say The server will reboot in 20 seconds for backup.')
             sleep(20)
             stop_server(server, wait=True)
-        elif is_server_running(server):
+        elif runState:
             stop_server(server, wait=True)
         backup.backup(server['path'], server['backup_path'], server['world_name'], server.get('backup_limit', 10))
-        start_server(server)
+        if runState:
+            start_server(server)
         minikd_logger.info(f"[{server['name']}] The backup was successfully created.")
         backedUp = True
 
+    backup_in_progress = False
     if backedUp:
         return 203
     return 302
