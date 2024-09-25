@@ -10,6 +10,7 @@ from backup import Backup
 from yamltester import YamlTester
 from time import sleep
 
+TIMEZONE = 'Europe/Moscow'
 PORT = 9198
 BACKUP_TIME = 5 # hours
 CONFIG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../config/servers.yaml')
@@ -56,7 +57,7 @@ def start_server(server):
         minikd_logger.debug(f"[{server['name']}] There was an attempt to start the server, but it is already running.")
         return 101
     
-    command = f"cd {server['path']} ; /usr/bin/java {server['memory']} -jar {server['path']}/server.jar nogui"
+    command = f"cd {server['path']} ; /usr/bin/java {server['memory']} -jar -Duser.timezone={TIMEZONE} {server['path']}/server.jar nogui"
     send_text(server, command)
 
     for i in range(5): # i don't like this too
