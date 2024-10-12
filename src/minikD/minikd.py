@@ -23,6 +23,8 @@ backup = Backup(minikd_logger, BACKUP_TIME)
 yaml_tester = YamlTester(CONFIG_PATH, minikd_logger)
 backup_in_progress = False
 
+mutex = threading.Lock()
+
 def read_yaml():
     global config
     config = yaml_tester.safe_read_yaml()
@@ -152,78 +154,85 @@ def send_text(server, message, reliable=False):
     subprocess.run(['tmux', 'send-keys', '-t', server['name'], message, 'Enter'])
     minikd_logger.debug(f"[{server['name']}] The message has been sent: {message}")
 
+
 def watchdog():
     while True:
-        read_yaml()
-        if not config:
-            minikd_logger.error(f"Daemon is suspended due to invalid config, waiting...")
-            while not config:
-                read_yaml()
-                sleep(1)
-            minikd_logger.info(f"The daemon is resumed.")
+        with mutex:
+            read_yaml()
+            if not config:
+                minikd_logger.error(f"Daemon is suspended due to invalid config, waiting...")
+                while not config:
+                    read_yaml()
+                    sleep(1)
+                minikd_logger.info(f"The daemon is resumed.")
 
-        for server in config['servers']:
-            if server['auto_restart'] == True and not is_server_running(server):
-                minikd_logger.warning(f"[{server['name']}] Restarting the server after a probable crash.")
-                start_server(server)
+            for server in config['servers']:
+                if server['auto_restart'] == True and not is_server_running(server):
+                    minikd_logger.warning(f"[{server['name']}] Restarting the server after a probable crash.")
+                    start_server(server)
 
-        if backup.is_ready():
-            backup_servers()
+            if backup.is_ready():
+                backup_servers()
 
         sleep(5)
   
+def manual_bakup():
+    with mutex:
+        backup_servers(True)
+
 def command_handler(command, client_socket):
-    answer = b'401'
-    try:
-        read_yaml()
-        if not config:
-            answer = b'300'
-            raise RuntimeError('Bad config')
-        
-        command, server_name = command.split()
-        server = next((s for s in config['servers'] if s['name'] == server_name or '-' == server_name ), None)
-        if server:
-            if command == 'test':
-                answer = b'200'
-            elif command == 'start':
-                answer = str(start_server(server)).encode('utf-8')
-            elif command == 'stop':
-                answer = str(stop_server(server)).encode('utf-8')    
-            elif command == 'backup':
-                answer = b'100' 
-                threading.Thread(target=backup_servers, args=(True,)).start()
-            elif command == 'backup-w':
-                answer = str(backup_servers(True)).encode('utf-8')
-            elif command == 'stop-w':
-                answer = str(stop_server(server, wait=True)).encode('utf-8')
-            elif command == 'stop-f':
-                answer = str(stop_force_server(server)).encode('utf-8')
-            elif command == 'stop-f-w':
-                answer = str(stop_force_server(server, wait=True)).encode('utf-8')
-            elif command == 'restart':
-                answer = str(restart_server(server)).encode('utf-8')
-            elif command == 'restart-w':
-                answer = str(restart_server(server, wait=True)).encode('utf-8')
-            elif command == 'restart-f':
-                answer = str(restart_server(server, force=True)).encode('utf-8')
-            elif command == 'restart-f-w':
-                answer = str(restart_server(server, wait=True, force=True)).encode('utf-8')
-            elif command == 'enable':
-                answer = str(change_start_on_lauch(server, True)).encode('utf-8')
-            elif command == 'disable':
-                answer = str(change_start_on_lauch(server, False)).encode('utf-8')
-            elif command == 'status':
-                answer =  [b'102', b'101'][int(is_server_running(server))]
+    with mutex:
+        answer = b'401'
+        try:
+            read_yaml()
+            if not config:
+                answer = b'300'
+                raise RuntimeError('Bad config')
+            
+            command, server_name = command.split()
+            server = next((s for s in config['servers'] if s['name'] == server_name or '-' == server_name ), None)
+            if server:
+                if command == 'test':
+                    answer = b'200'
+                elif command == 'start':
+                    answer = str(start_server(server)).encode('utf-8')
+                elif command == 'stop':
+                    answer = str(stop_server(server)).encode('utf-8')    
+                elif command == 'backup':
+                    answer = b'100' 
+                    threading.Thread(target=manual_bakup).start()
+                elif command == 'backup-w':
+                    answer = str(backup_servers(True)).encode('utf-8')
+                elif command == 'stop-w':
+                    answer = str(stop_server(server, wait=True)).encode('utf-8')
+                elif command == 'stop-f':
+                    answer = str(stop_force_server(server)).encode('utf-8')
+                elif command == 'stop-f-w':
+                    answer = str(stop_force_server(server, wait=True)).encode('utf-8')
+                elif command == 'restart':
+                    answer = str(restart_server(server)).encode('utf-8')
+                elif command == 'restart-w':
+                    answer = str(restart_server(server, wait=True)).encode('utf-8')
+                elif command == 'restart-f':
+                    answer = str(restart_server(server, force=True)).encode('utf-8')
+                elif command == 'restart-f-w':
+                    answer = str(restart_server(server, wait=True, force=True)).encode('utf-8')
+                elif command == 'enable':
+                    answer = str(change_start_on_lauch(server, True)).encode('utf-8')
+                elif command == 'disable':
+                    answer = str(change_start_on_lauch(server, False)).encode('utf-8')
+                elif command == 'status':
+                    answer =  [b'102', b'101'][int(is_server_running(server))]
+                else:
+                    answer = b'401'
             else:
-                answer = b'401'
-        else:
-            answer = b'301'
-    except BaseException as e:
-        minikd_logger.error(f"[API] An error occurred while processing the request: {e}.")
-    finally:
-        client_socket.sendall(answer)
-        minikd_logger.debug(f"[API] Sent code: {answer}")
-        client_socket.close()
+                answer = b'301'
+        except BaseException as e:
+            minikd_logger.error(f"[API] An error occurred while processing the request: {e}.")
+        finally:
+            client_socket.sendall(answer)
+            minikd_logger.debug(f"[API] Sent code: {answer}")
+            client_socket.close()
     
 def api():
     try:
